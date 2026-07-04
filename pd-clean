@@ -5,7 +5,10 @@ clear
 echo "© 2026 fb.com/thuong.hai.581."
 echo "All rights reserved."
 
-[ "$EUID" -ne 0 ] && echo "Please run as sudo!" && exit 1
+if [ "$EUID" -eq 0 ]; then
+  echo "Do NOT run this script as root. Run normally."
+  exit 1
+fi
 
 if ! ls /Applications | grep -qi "Parallels Desktop"; then
   echo "Parallels not installed. Exiting..."
@@ -19,7 +22,7 @@ echo "Parallels detected. Continuing..."
 cleanup() {
   echo ""
   echo "CTRL+C detected. Cleaning up..."
-
+  
   killall "Parallels Desktop" 2>/dev/null
   sudo killall prl_client_app 2>/dev/null
   sudo killall prl_vm_app 2>/dev/null
@@ -34,10 +37,22 @@ cleanup() {
 
 trap cleanup INT
 
-echo "Killing Parallels processes..."
-sudo killall "Parallels Desktop" 2>/dev/null
-sudo killall prl_client_app 2>/dev/null
-sudo killall prl_vm_app 2>/dev/null
+read -p "Parallels detected. FORCE kill processes? (y/n): " answer
+
+case "$answer" in
+  y|Y)
+    echo "Killing Parallels..."
+    sudo killall "Parallels Desktop" prl_client_app prl_vm_app 2>/dev/null
+    ;;
+  n|N)
+    echo "Exit."
+    exit 0
+    ;;
+  *)
+    echo "Invalid input."
+    exit 1
+    ;;
+esac
 
 echo "Disabling network time..."
 sudo systemsetup -setusingnetworktime off >/dev/null 2>&1
@@ -67,8 +82,25 @@ echo "Setting system date to $MAC_DATE ..."
 sudo date "$MAC_DATE"
 
 echo "Starting Parallels Desktop..."
-sleep 5
-sudo open -a "Parallels Desktop"
+#!/bin/bash
+
+# Get first VM name (you can change selection logic if needed)
+VM=$(prlctl list -a -o name | tail -n +2 | head -n 1)
+
+if [ -z "$VM" ]; then
+  echo "No VM found"
+  exit 1
+fi
+
+echo "Selected VM: $VM"
+
+# Disable time sync
+prlctl set "$VM" --time-sync off
+
+# Start VM
+prlctl start "$VM"
+
+echo "VM started: $VM"
 
 echo "Waiting for Parallels to close (Press Ctrl + C to FORCE)..."
 
