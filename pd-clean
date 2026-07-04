@@ -99,8 +99,22 @@ echo "Starting Parallels Desktop..."
 
 open -a "Parallels Desktop" --args
 
-echo "Waiting for UI to START!"
-sleep 5
+echo "Waiting for Parallels UI to start..."
+
+timeout=60  # seconds
+elapsed=0
+
+while ! pgrep -f prl_client_app >/dev/null; do
+  sleep 1
+  elapsed=$((elapsed + 1))
+
+  if [ "$elapsed" -ge "$timeout" ]; then
+    echo "Timeout waiting for Parallels UI"
+    exit 1
+  fi
+done
+
+echo "Parallels UI detected. Continuing..."
 
 # Get first VM name (you can change selection logic if needed)
 VM=$(prlctl list -a -o name | tail -n +2 | head -n 1)
