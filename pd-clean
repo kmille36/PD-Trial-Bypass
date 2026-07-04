@@ -17,7 +17,8 @@ fi
 
 echo "Parallels detected. Continuing..."
 
-
+echo "Please type your MacOS password!"
+sudo -v
 
 cleanup() {
   echo ""
@@ -111,6 +112,9 @@ while true; do
     && ! pgrep -f prl_vm_app >/dev/null; then
 
     echo "Parallels not running. Restoring network time..."
+
+    echo "Please type your MacOS password!"
+    sudo -v
 
     sudo systemsetup -setusingnetworktime on >/dev/null 2>&1
     sudo sntp -sS time.apple.com >/dev/null 2>&1
