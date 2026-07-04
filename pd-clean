@@ -23,6 +23,9 @@ sudo -v
 cleanup() {
   echo ""
   echo "CTRL+C detected. Cleaning up..."
+
+  echo "Please type your MacOS password AGAIN!"
+  sudo -v
   
   killall "Parallels Desktop" 2>/dev/null
   sudo killall prl_client_app 2>/dev/null
@@ -113,7 +116,7 @@ while true; do
 
     echo "Parallels not running. Restoring network time..."
 
-    echo "Please type your MacOS password!"
+    echo "Please type your MacOS password AGAIN!"
     sudo -v
 
     sudo systemsetup -setusingnetworktime on >/dev/null 2>&1
