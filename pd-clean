@@ -1,0 +1,78 @@
+#!/bin/bash
+
+[ "$EUID" -ne 0 ] && echo "Please run as sudo!" && exit 1
+
+clear
+
+cleanup() {
+  echo ""
+  echo "CTRL+C detected. Cleaning up..."
+
+  killall "Parallels Desktop" 2>/dev/null
+  sudo killall prl_client_app 2>/dev/null
+  sudo killall prl_vm_app 2>/dev/null
+
+  echo "Restoring network time..."
+  sudo systemsetup -setusingnetworktime on >/dev/null 2>&1
+  sudo sntp -sS time.apple.com >/dev/null 2>&1
+
+  echo "Done. Exiting."
+  exit 0
+}
+
+trap cleanup INT
+
+echo "Killing Parallels processes..."
+sudo killall "Parallels Desktop" 2>/dev/null
+sudo killall prl_client_app 2>/dev/null
+sudo killall prl_vm_app 2>/dev/null
+
+echo "Disabling network time..."
+sudo systemsetup -setusingnetworktime off >/dev/null 2>&1
+
+# Correct user plist path (root)
+PLIST="/var/root/Library/Preferences/com.parallels.desktop.plist"
+
+echo "Extracting started_at..."
+
+STARTED_AT=$(sudo plutil -p $PLIST | tr ',' '\n' | grep '"started_at"' | head -1 | sed 's/.*"\(202[0-9-]*\)".*/\1/' | tr -d '-')
+
+echo "Raw extracted date: $STARTED_AT"
+
+if [[ -z "$STARTED_AT" ]]; then
+  echo "ERROR: Could not extract started_at"
+  exit 1
+fi
+
+# Convert YYYYMMDD → macOS format MMDD0000YYYY
+MM=${STARTED_AT:4:2}
+DD=${STARTED_AT:6:2}
+YYYY=${STARTED_AT:0:4}
+
+MAC_DATE="${MM}${DD}0000${YYYY}"
+
+echo "Setting system date to $MAC_DATE ..."
+sudo date "$MAC_DATE"
+
+echo "Starting Parallels Desktop..."
+sleep 5
+sudo open -a "Parallels Desktop"
+
+echo "Waiting for Parallels to close (Press Ctrl + C to FORCE)..."
+
+while true; do
+  if ! pgrep -f "Parallels Desktop" >/dev/null \
+    && ! pgrep -f prl_client_app >/dev/null \
+    && ! pgrep -f prl_vm_app >/dev/null; then
+
+    echo "Parallels not running. Restoring network time..."
+
+    sudo systemsetup -setusingnetworktime on
+    sudo sntp -sS time.apple.com >/dev/null
+
+    echo "Done."
+    exit 0
+  fi
+
+  sleep 15
+done
