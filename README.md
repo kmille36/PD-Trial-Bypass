@@ -15,4 +15,6 @@ Simple Bypass Parallels' trial in Mac OS! Work for ALL versions!
   ```sh
   pd-clean
   ```
+
+  Demo: https://youtu.be/vyTXlfMgVoE
   
