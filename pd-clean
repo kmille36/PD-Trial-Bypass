@@ -1,5 +1,7 @@
 #!/bin/bash
 
+clear
+
 echo "Copyright © 2026 fb.com/thuong.hai.581. All rights reserved."
 
 [ "$EUID" -ne 0 ] && echo "Please run as sudo!" && exit 1
@@ -11,7 +13,7 @@ fi
 
 echo "Parallels detected. Continuing..."
 
-clear
+
 
 cleanup() {
   echo ""
