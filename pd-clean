@@ -2,7 +2,8 @@
 
 clear
 
-echo "Copyright © 2026 fb.com/thuong.hai.581. All rights reserved."
+echo "© 2026 fb.com/thuong.hai.581."
+echo "All rights reserved."
 
 [ "$EUID" -ne 0 ] && echo "Please run as sudo!" && exit 1
 
