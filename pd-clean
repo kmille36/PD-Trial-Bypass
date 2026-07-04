@@ -2,6 +2,13 @@
 
 [ "$EUID" -ne 0 ] && echo "Please run as sudo!" && exit 1
 
+if ! ls /Applications | grep -qi "Parallels Desktop"; then
+  echo "Parallels not installed. Exiting..."
+  exit 1
+fi
+
+echo "Parallels detected. Continuing..."
+
 clear
 
 cleanup() {
