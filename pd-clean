@@ -41,22 +41,32 @@ cleanup() {
 
 trap cleanup INT
 
-read -p "Parallels detected. FORCE kill processes? (y/n): " answer
 
-case "$answer" in
-  y|Y)
-    echo "Killing Parallels..."
-    sudo killall "Parallels Desktop" prl_client_app prl_vm_app 2>/dev/null
-    ;;
-  n|N)
-    echo "Exit."
-    exit 0
-    ;;
-  *)
-    echo "Invalid input."
-    exit 1
-    ;;
-esac
+# Check if any Parallels processes are running
+if pgrep -f "Parallels Desktop" >/dev/null || \
+   pgrep -f prl_client_app >/dev/null || \
+   pgrep -f prl_vm_app >/dev/null; then
+
+  read -p "Parallels detected. FORCE kill processes? (y/n): " answer
+
+  case "$answer" in
+    y|Y)
+      echo "Killing Parallels..."
+      sudo killall "Parallels Desktop" prl_client_app prl_vm_app 2>/dev/null
+      ;;
+    n|N)
+      echo "Exit."
+      exit 0
+      ;;
+    *)
+      echo "Invalid input."
+      exit 1
+      ;;
+  esac
+
+else
+  echo "No Parallels processes running."
+fi
 
 echo "Disabling network time..."
 sudo systemsetup -setusingnetworktime off >/dev/null 2>&1
