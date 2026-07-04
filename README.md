@@ -13,6 +13,6 @@ Simple Bypass Parallels' trial in Mac OS! Work for ALL versions!
 
 - Usage:
   ```sh
-  sudo pd-clean
+  pd-clean
   ```
   
