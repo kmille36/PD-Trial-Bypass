@@ -99,6 +99,9 @@ echo "Starting Parallels Desktop..."
 
 open -a "Parallels Desktop" --args
 
+echo "Waiting for UI to START!"
+sleep 5
+
 # Get first VM name (you can change selection logic if needed)
 VM=$(prlctl list -a -o name | tail -n +2 | head -n 1)
 
