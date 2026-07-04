@@ -82,7 +82,8 @@ echo "Setting system date to $MAC_DATE ..."
 sudo date "$MAC_DATE"
 
 echo "Starting Parallels Desktop..."
-#!/bin/bash
+
+open -a "Parallels Desktop" --args
 
 # Get first VM name (you can change selection logic if needed)
 VM=$(prlctl list -a -o name | tail -n +2 | head -n 1)
@@ -111,8 +112,8 @@ while true; do
 
     echo "Parallels not running. Restoring network time..."
 
-    sudo systemsetup -setusingnetworktime on
-    sudo sntp -sS time.apple.com >/dev/null
+    sudo systemsetup -setusingnetworktime on >/dev/null 2>&1
+    sudo sntp -sS time.apple.com >/dev/null 2>&1
 
     echo "Done."
     exit 0
